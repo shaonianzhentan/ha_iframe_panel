@@ -1,0 +1,8 @@
+{
+    "domain": "ha_iframe_panel",
+    "name": "ha_iframe_panel",
+    "documentation": "https://github.com/shaonianzhentan/ha_iframe_panel",
+    "requirements": [],
+    "dependencies": [],
+    "codeowners": []
+  }
