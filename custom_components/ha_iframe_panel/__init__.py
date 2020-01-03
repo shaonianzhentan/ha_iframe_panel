@@ -3,8 +3,7 @@ import uuid
 
 DOMAIN = 'ha_iframe_panel'
 VERSION = '1.0'
-URL = '/ha_iframe_panel-api-' + str(uuid.uuid4())
-ROOT_PATH = URL + '/' + VERSION
+ROOT_PATH = '/ha_iframe_panel-api/' + VERSION
 
 def setup(hass, config):
     cfg  = config[DOMAIN]
@@ -16,29 +15,36 @@ def setup(hass, config):
     hass.components.frontend.add_extra_js_url(hass, ROOT_PATH + '/ha-iframe-panel.js')
     for i, item in enumerate(cfg):
         _dict = {}
+        frontend_url_path = 'ha_iframe_panel_'+str(i)
         if item['type'] == 'fullscreen':
             _dict['fullscreen'] = True
             _dict['url'] = item['url']
+            _name = '全屏显示'
         elif item['type'] == 'blank':
             _dict['blank'] = True
             _dict['url'] = item['url']
+            _name = '新开页面'
         elif item['type'] == 'hass':
             _dict['hass'] = True
-            _dict['url'] = item['url']
+            _name = '内置页面'
+            frontend_url_path = item['url'].strip('/')
         elif item['type'] == 'tabs':
             _dict['list'] = item['list']
+            _name = 'TAB页面'
         
-        _name = '页面' + str(i)
-        _icon = 'mdi:react'
         if 'name' in item:
             _name = item['name']
+        
+        _icon = 'mdi:react'    
+        if 'icon' in item:
             _icon = item['icon']
-            
+        
         hass.components.frontend.async_register_built_in_panel(
             "ha-iframe-panel",
             _name,
             _icon,
-            frontend_url_path='ha_iframe_panel_'+str(i),
+            frontend_url_path,
             config=_dict,
-            require_admin=False
-        )
+            require_admin=False)
+
+    return True

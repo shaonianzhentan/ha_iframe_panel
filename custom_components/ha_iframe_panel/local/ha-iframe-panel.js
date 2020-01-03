@@ -13,46 +13,35 @@ class HaIframePanel extends HTMLElement {
         const div = document.createElement('div');
         div.className = 'ha-iframe-panel'
         div.innerHTML = `
-            <div class="header">
-                <app-toolbar>
-                </app-toolbar>
-            </div>
+		  <app-header-layout has-scrolling-region>
+    
+			<app-header class="header" fixed="" slot="header" style="transition-duration: 0ms; transform: translate3d(0px, 0px, 0px);">		  
+			  <paper-tabs scrollable role="tablist" selected="0"></paper-tabs>
+			</app-header>
+
             <iframe></iframe>
+			 </app-header-layout>
         `
         shadow.appendChild(div)
 
         const style = document.createElement('style')
         style.textContent = `
-            app-header, app-toolbar {
+            app-header{
                 background-color: var(--primary-color);
                 font-weight: 400;
                 color: var(--text-primary-color, white);
             }
-            .ha-iframe-panel{    
+            app-header ha-icon{height:18px;}
+            .ha-iframe-panel{
                 position: relative;
                 width: 100%;
                 overflow: hidden;
                 height: 100vh;
                 z-index: 0;}
-            .ha-iframe-panel iframe{width:100%;height:calc(100vh - 64px);border:none;}
-
-            .ha-iframe-panel.fullscreen app-toolbar{display:none;}
+            .ha-iframe-panel iframe{width:100%;height:calc(100vh - 48px);border:none;}
+            .ha-iframe-panel.fullscreen app-header{display:none;}
             .ha-iframe-panel.fullscreen iframe{height:100vh;}
             .hide{display:none;}
-
-            .tabs{       
-                position: relative;
-                margin-top: -64px;
-                left: 60px;
-                height: 64px;
-                line-height: 64px;
-                font-size: 18px;
-                color:#d6edfd;display: flex;}
-            .tabs div{display: flex;
-                align-items: center;
-                padding:0 10px;cursor:pointer;white-space: nowrap;}
-            .tabs div ha-icon{margin-right:5px;}
-            .tabs div.active{color:white;}
         `
         shadow.appendChild(style);
 
@@ -74,33 +63,24 @@ class HaIframePanel extends HTMLElement {
     init({ url, fullscreen, blank, hass, list }, title) {
         const { shadow } = this
         if (Array.isArray(list)) {
-            this.setTitle('')
-
-            let tabs = document.createElement('div')
-            tabs.className = 'tabs'
+	
+            let tabs = shadow.querySelector('paper-tabs')
+			if(tabs.children.length === 0){
+				tabs.addEventListener('iron-activate',()=>{
+					let tab = tabs.querySelector('.iron-selected')
+					shadow.querySelector('iframe').src = tab.getAttribute('page-name')
+				})
+			}
+			tabs.innerHTML = ''
             list.forEach((ele, index) => {
-                let tab = document.createElement('div')
+                let tab = document.createElement('paper-tab')
                 tab.innerHTML = `<ha-icon icon="${ele.icon}"></ha-icon>${ele.name}`
-                tab.dataset['url'] = ele.url
-                tab.onclick = function () {
-                    let ac = shadow.querySelector('.tabs div.active')
-                    ac && ac.classList.remove('active')
-                    this.classList.add('active')
-                    shadow.querySelector('iframe').src = this.dataset['url']
-                }
-                if (index === 0) {
-                    tab.className = 'active'
-                    shadow.querySelector('iframe').src = ele.url
-                }
+				tab.setAttribute('page-name', ele.url)
                 tabs.appendChild(tab)
             })
-
-            let header = shadow.querySelector('.header')
-            header.appendChild(tabs)
-
+			
             return
         }
-        this.setTitle(title)
         if (blank) {
             window.open(url)
             history.back()
@@ -130,25 +110,6 @@ class HaIframePanel extends HTMLElement {
 
         let iframe = shadow.querySelector('iframe')
         iframe.src = url
-    }
-
-    set narrow(value) {
-       // let menuButton = this.shadow.querySelector('ha-menu-button')
-       // menuButton.hass = this.hass || {}
-       // menuButton.narrow = value
-    }
-
-    setTitle(title) {
-        let toolbar = this.shadow.querySelector('app-toolbar')
-        if (toolbar.children.length === 0) {
-            let menuButton = document.createElement('ha-menu-button')
-            toolbar.appendChild(menuButton)
-
-            let div = document.createElement('div')
-            div.setAttribute('main-title', '')
-            div.textContent = title
-            toolbar.appendChild(div)
-        }
     }
 }
 
