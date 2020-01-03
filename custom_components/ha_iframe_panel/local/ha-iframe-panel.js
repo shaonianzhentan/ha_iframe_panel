@@ -63,22 +63,24 @@ class HaIframePanel extends HTMLElement {
     init({ url, fullscreen, blank, hass, list }, title) {
         const { shadow } = this
         if (Array.isArray(list)) {
-	
+
             let tabs = shadow.querySelector('paper-tabs')
-			if(tabs.children.length === 0){
-				tabs.addEventListener('iron-activate',()=>{
-					let tab = tabs.querySelector('.iron-selected')
-					shadow.querySelector('iframe').src = tab.getAttribute('page-name')
-				})
-			}
-			tabs.innerHTML = ''
+            if (tabs.children.length === 0) {
+                tabs.addEventListener('iron-activate', () => {
+                    setTimeout(() => {
+                        let tab = tabs.querySelector('.iron-selected')
+                        shadow.querySelector('iframe').src = tab.getAttribute('page-name')
+                    }, 500)
+                })
+            }
+            tabs.innerHTML = ''
             list.forEach((ele, index) => {
                 let tab = document.createElement('paper-tab')
                 tab.innerHTML = `<ha-icon icon="${ele.icon}"></ha-icon>${ele.name}`
-				tab.setAttribute('page-name', ele.url)
+                tab.setAttribute('page-name', ele.url)
                 tabs.appendChild(tab)
             })
-			
+
             return
         }
         if (blank) {
