@@ -13,7 +13,7 @@ class HaIframePanel extends HTMLElement {
         const div = document.createElement('div');
         div.className = 'ha-iframe-panel'
         div.innerHTML = `
-		  <app-header-layout has-scrolling-region>
+		  <app-header-layout style="height:100%;">
     
 			<app-header class="header" fixed="" slot="header" style="transition-duration: 0ms; transform: translate3d(0px, 0px, 0px);">		  
 			  <paper-tabs scrollable role="tablist" selected="0"></paper-tabs>
