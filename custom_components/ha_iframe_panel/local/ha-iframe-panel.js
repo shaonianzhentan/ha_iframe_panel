@@ -1,11 +1,3 @@
-/**
- * 
- * 作者QQ：635147515
- * 日期：2019-12-26
- * 版本：1.2
- * 项目地址：https://github.com/shaonianzhentan/lovelace-ha-iframe-panel
- */
-
 class HaIframePanel extends HTMLElement {
     constructor() {
         super()
@@ -70,7 +62,7 @@ class HaIframePanel extends HTMLElement {
                     setTimeout(() => {
                         let tab = tabs.querySelector('.iron-selected')
                         shadow.querySelector('iframe').src = tab.getAttribute('page-name')
-                    }, 500)
+                    }, 100)
                 })
             }
             tabs.innerHTML = ''
