@@ -63,7 +63,7 @@ class HaIframePanel extends HTMLElement {
                         let tab = tabs.querySelector('.iron-selected')
                         let link = tab.getAttribute('page-name')
                         // 如果当前是http，并且在手机端，则打开新页面
-                        if(link.indexOf('http://') === 0 && /Android|iPhone|iPad/.test(navigator.userAgent)){
+                        if(location.protocol === 'https:' && link.indexOf('http://') === 0 && /Android|iPhone|iPad/.test(navigator.userAgent)){
                             window.open(link)
                         }
                         shadow.querySelector('iframe').src = link

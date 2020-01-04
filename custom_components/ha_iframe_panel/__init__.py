@@ -2,7 +2,7 @@ import os
 import uuid
 
 DOMAIN = 'ha_iframe_panel'
-VERSION = '1.1'
+VERSION = '1.2'
 ROOT_PATH = '/ha_iframe_panel-api/' + VERSION
 
 def setup(hass, config):
