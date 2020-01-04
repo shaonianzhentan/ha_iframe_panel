@@ -61,8 +61,13 @@ class HaIframePanel extends HTMLElement {
                 tabs.addEventListener('iron-activate', () => {
                     setTimeout(() => {
                         let tab = tabs.querySelector('.iron-selected')
-                        shadow.querySelector('iframe').src = tab.getAttribute('page-name')
-                    }, 100)
+                        let link = tab.getAttribute('page-name')
+                        // 如果当前是http，并且在手机端，则打开新页面
+                        if(link.indexOf('http://') === 0 && /Android|iPhone|iPad/.test(navigator.userAgent)){
+                            window.open(link)
+                        }
+                        shadow.querySelector('iframe').src = link
+                    }, 50)
                 })
             }
             tabs.innerHTML = ''
