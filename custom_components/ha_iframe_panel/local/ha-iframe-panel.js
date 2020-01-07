@@ -53,21 +53,17 @@ class HaIframePanel extends HTMLElement {
         this.dispatchEvent(event);
     }
 
-    get panel() {
-        return this._panel
-    }
-
-    set panel(value) {
-        this._panel = value
-
-        this.init(value.config, value.title)
+ 
+    
+    toast(message){
+        this.fire('hass-notification', {message})
     }
 
     setUrl(link) {
         // 如果当前是http，并且在手机端，则打开新页面
 		let isSafe = location.protocol === 'https:' && link.indexOf('http://') === 0
 		if(isSafe){
-			this.fire('hass-notification', {message: '请手动允许访问http链接'})
+			this.toast('请手动允许访问http链接')
 		}
         if (isSafe && /Android|iPhone|iPad/.test(navigator.userAgent)) {
             window.open(link)
@@ -75,53 +71,77 @@ class HaIframePanel extends HTMLElement {
         let iframe = this.shadow.querySelector('iframe')
         iframe.src = link
     }
-
-    init({ url, fullscreen, blank, hass, list }, title) {
-        const { shadow } = this
-        if (Array.isArray(list)) {
-            let tabs = shadow.querySelector('paper-tabs')
-            if (tabs.children.length === 0) {
-                tabs.addEventListener('iron-activate', () => {
-                    setTimeout(() => {
-                        let tab = tabs.querySelector('.iron-selected')
-                        let link = tab.getAttribute('page-name')
-                        this.setUrl(link)
-                    }, 50)
-                })
-				// 设置初始化链接
-				if(list.length > 0) this.setUrl(list[0].url)
-				setTimeout(()=>{
-					let style = document.createElement('style')
-					style.textContent = `
-					paper-icon-button[icon='paper-tabs:chevron-left'].not-visible{
-						opacity: 1!important;
-					}
-					paper-icon-button[icon='paper-tabs:chevron-left'].not-visible:before{
-						content: '≡';
-						position: absolute;
-						margin-left: 5px;
-						font-size: 25px;
-						background-color: var(--primary-color);
-						z-index: 1;
-					}
-					`
-					tabs.shadowRoot.appendChild(style)
-					let lb = tabs.shadowRoot.querySelector("paper-icon-button[icon='paper-tabs:chevron-left']")
-					lb.addEventListener('click',()=>{
-						if(lb.classList.contains('not-visible')){
-							this.fire('hass-toggle-menu')
-						}
-					})
-				},1000)
-            }
-            tabs.innerHTML = ''
-            list.forEach((ele, index) => {
-                let tab = document.createElement('paper-tab')
-                tab.innerHTML = `<ha-icon icon="${ele.icon}"></ha-icon>${ele.name}`
-                tab.setAttribute('page-name', ele.url)
-                tabs.appendChild(tab)
+    
+    setTabs(list){
+        let tabs = this.shadow.querySelector('paper-tabs')        
+        if(!tabs.items){
+            // 如果没有属性，则跳转到首页
+            location.href = '/'
+            return
+        }
+        if (tabs.children.length === 0) {
+            tabs.addEventListener('iron-activate', () => {
+                setTimeout(() => {
+                    let tab = tabs.querySelector('.iron-selected')
+                    let link = tab.getAttribute('page-name')
+                    this.setUrl(link)
+                }, 50)
             })
+            // 设置初始化链接
+            if(list.length > 0) this.setUrl(list[0].url)
+            setTimeout(()=>{
+                let style = document.createElement('style')
+                style.textContent = `
+                paper-icon-button[icon='paper-tabs:chevron-left'].not-visible{
+                    opacity: 1!important;
+                }
+                paper-icon-button[icon='paper-tabs:chevron-left'].not-visible:before{
+                    content: '≡';
+                    position: absolute;
+                    margin-left: 5px;
+                    font-size: 25px;
+                    background-color: var(--primary-color);
+                    z-index: 1;
+                }
+                `
+                tabs.shadowRoot.appendChild(style)
+                let lb = tabs.shadowRoot.querySelector("paper-icon-button[icon='paper-tabs:chevron-left']")
+                lb.addEventListener('click',()=>{
+                    if(lb.classList.contains('not-visible')){
+                        this.fire('hass-toggle-menu')
+                    }
+                })
+            },1000)
+        }
+        tabs.innerHTML = ''
+        list.forEach((ele, index) => {
+            let tab = document.createElement('paper-tab')
+            tab.innerHTML = `<ha-icon icon="${ele.icon}"></ha-icon>${ele.name}`
+            tab.setAttribute('page-name', ele.url)
+            tabs.appendChild(tab)
+        })        
+    }
 
+    
+    get panel() {
+        return this._panel
+    }
+
+    set panel(value) {
+        this._panel = value
+        this.init(value.config, value.title)
+    }
+    
+    init({ url, fullscreen, blank, hass, api }, title) {
+        const { shadow } = this
+        if (api) {
+            fetch(api,{method:'post'}).then(res=>res.json()).then(res=>{
+                if(res.code === 0){
+                   this.setTabs(res.data)
+                }else{
+                    this.toast(res.msg)
+                }       
+            })
             return
         }
         if (blank) {
