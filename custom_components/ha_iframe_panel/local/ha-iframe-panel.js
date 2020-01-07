@@ -132,12 +132,24 @@ class HaIframePanel extends HTMLElement {
         this.init(value.config, value.title)
     }
     
-    init({ url, fullscreen, blank, hass, api }, title) {
+    init({ url, fullscreen, blank, hass, api, list }, title) {
         const { shadow } = this
         if (api) {
+			if(this.loading) return;
+			this.loading = true;
+			
+			try{
+				let arr = JSON.parse(localStorage['ha-iframe-panel-list'])
+				if(Array.isArray(arr)){
+					list = arr
+				}
+			}catch(ex){
+				
+			}
+			this.setTabs(list)			
             fetch(api,{method:'post'}).then(res=>res.json()).then(res=>{
                 if(res.code === 0){
-                   this.setTabs(res.data)
+				   localStorage['ha-iframe-panel-list'] = JSON.stringify(res.data)
                 }else{
                     this.toast(res.msg)
                 }       

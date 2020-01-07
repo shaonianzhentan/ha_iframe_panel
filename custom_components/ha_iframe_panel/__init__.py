@@ -9,7 +9,7 @@ import homeassistant.config as conf_util
 _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = 'ha_iframe_panel'
-VERSION = '1.4'
+VERSION = '1.4.1'
 URL = '/ha_iframe_panel-api-' + str(uuid.uuid4())
 ROOT_PATH = '/ha_iframe_panel-local/' + VERSION
 
@@ -48,6 +48,7 @@ def setup(hass, config):
             _name = '内置页面'
             frontend_url_path = item['url'].strip('/')
         elif item['type'] == 'tabs':
+            _dict['list'] = item['list']
             _dict['api'] = URL + '?index=' + str(i)
             _name = 'TAB页面'
         else:
